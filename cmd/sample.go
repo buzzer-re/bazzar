@@ -7,6 +7,8 @@ import (
 	"github.com/aandersonl/bazzar/pkg/abuse"
 )
 
+const ZIP_PASSWORD = "infected"
+
 type SampleArgs struct {
 	listLast bool
 	hashGet string
@@ -27,8 +29,17 @@ var getCmd = &cobra.Command{
 	Short: "Download Malware Bazzar samples using your criteria",
 	Run: func (cmd *cobra.Command, args []string) {
 		if sampleArgs.hashGet != "" {
-			fmt.Println(abuse.GetSample(sampleArgs.hashGet))
+			sampleData, err := abuse.GetSample(sampleArgs.hashGet)
+
+			if err == nil {
+				fmt.Printf("Error on get sample: %v\n", err)
+				return
+			}
+			
+			utils.SaveFile(sampleData, sampleArgs.hashGet)
 		}
+
+		cmd.Help()
 	},	
 }
 

@@ -5,3 +5,8 @@ func PanicIfError(err error) {
 		panic(err)
 	}
 }
+
+
+func SaveFile(fileData []byte, fileName string) {
+	
+}
