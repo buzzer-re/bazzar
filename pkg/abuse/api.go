@@ -51,10 +51,11 @@ func QuerySampleInfo(sampleHash string) SampleQuery {
 	utils.PanicIfError(err)
 
 	sampleQuery := SampleQuery{}
-	err = json.Unmarshal(body, &sampleQuery)
 
+	err = json.Unmarshal(body, &sampleQuery)
 	utils.PanicIfError(err)
 
+	
 	return sampleQuery
 }
 
