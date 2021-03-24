@@ -13,9 +13,10 @@ const (
 var (
 	getSampleInfoForm     url.Values = url.Values{"query": {"get_info"}, "hash": {}}
 	sampleByTag           url.Values = url.Values{"query": {"get_taginfo"}, "tag": {}, "limit": {"1000"}}
+	getSample			  url.Values = url.Values{"query": {"get_file"}, "sha256_hash": {}}
 	latestSamplesFormData url.Values = url.Values{"query": {"get_recent"}, "selector": {"time"}}
 	querySampleSignature  url.Values = url.Values{"query": {"get_siginfo"}, "signature": {}, "limit": {}}
-	queryClamavSignature  url.Values = url.Values{"query": {"get_clamavinfo"}, "clamav": {}, "limit": {}}
+	// queryClamavSignature  url.Values = url.Values{"query": {"get_clamavinfo"}, "clamav": {}, "limit": {}}
 )
 
 // Struct of each api response
@@ -151,4 +152,8 @@ type SampleQuery struct {
 type Response struct {
 	QueryStatus string `json:"query_status"`
 	Data        []Data
+}
+
+type QueryStatus struct {
+	QueryStatus string `json:"query_status"`
 }

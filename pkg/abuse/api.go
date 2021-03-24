@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"errors"
 
 	"github.com/aandersonl/bazzar/pkg/utils"
 )
@@ -47,17 +48,33 @@ func QuerySampleInfo(sampleHash string) SampleQuery {
 	resp, err := http.PostForm(MALWARE_BAZZAR_API_URL, getSampleInfoForm)
 	utils.PanicIfError(err)
 	body, err := ioutil.ReadAll(resp.Body)
-
-	sampleQuery := SampleQuery{}
-	err = json.Unmarshal(body, &sampleQuery)
-
 	utils.PanicIfError(err)
 
+	sampleQuery := SampleQuery{}
+
+	err = json.Unmarshal(body, &sampleQuery)
+	utils.PanicIfError(err)
+
+	
 	return sampleQuery
 }
 
-func GetSample(sampleHash string) Response {
-	return Response{}
+func GetSample(sampleHash string) ([]byte, error) {
+	getSample.Set("sha256_hash", sampleHash)
+	resp, err := http.PostForm(MALWARE_BAZZAR_API_URL, getSample)
+	utils.PanicIfError(err)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	utils.PanicIfError(err)
+
+	queryResponse := QueryStatus{}
+	err = json.Unmarshal(body, &queryResponse)
+
+	if err == nil {
+		return nil, errors.New(queryResponse.QueryStatus)
+	}
+
+	return body, nil
 }
 
 func QuerySignature(signature string, limit int) Response {
@@ -68,6 +85,8 @@ func QuerySignature(signature string, limit int) Response {
 	utils.PanicIfError(err)
 
 	body, err := ioutil.ReadAll(resp.Body)
+
+	utils.PanicIfError(err)
 
 	response := Response{}
 	err = json.Unmarshal(body, &response)
