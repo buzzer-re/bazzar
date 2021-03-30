@@ -20,6 +20,7 @@ type SampleArgs struct {
 	listLast bool
 	hashGet string
 	sampleInfo bool
+	outputFile string
 
 	toJson bool
 }
@@ -39,14 +40,6 @@ var sampleCmd = &cobra.Command{
 	Use: "sample",
 	Short: "Interact with samples in Malware Bazzar",
 	Run: func (cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},	
-}
-
-var getCmd = &cobra.Command{
-	Use: "get",
-	Short: "Download Malware Bazzar samples using your criteria",
-	Run: func (cmd *cobra.Command, args []string) {
 		if sampleArgs.hashGet != "" {
 			if sampleArgs.sampleInfo {
 				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
@@ -59,15 +52,23 @@ var getCmd = &cobra.Command{
 				}
 
 			} else {
-				fmt.Printf("Downloading %s\n", sampleArgs.hashGet)
+				fmt.Printf("Downloading %s...\n", sampleArgs.hashGet)
 				sampleData, err := abuse.GetSample(sampleArgs.hashGet)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error on get sample: %v\n", err)
 					return
 				}
-				//TODO unpack the zip
-				// utils.Unzip(samplData, ZIP_PASSWORD)
-				utils.SaveFile(sampleData, sampleArgs.hashGet)
+				unpacked, fileName := utils.Unzip(sampleData, ZIP_PASSWORD)
+
+				var outputFile string
+
+				if sampleArgs.outputFile != "" {
+					outputFile = sampleArgs.outputFile
+				} else {
+					outputFile = fileName
+				}
+
+				utils.SaveFile(unpacked, outputFile)
 			}
 
 
@@ -80,11 +81,12 @@ var getCmd = &cobra.Command{
 
 func init() {
 	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last entries in Malware Bazzar")
-	sampleCmd.AddCommand(getCmd)
 
-	getCmd.Flags().StringVarP(&sampleArgs.hashGet, "hash", "H", "", "Get sample by sha256 hash")
-	getCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
-	getCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
+	sampleCmd.Flags().StringVarP(&sampleArgs.hashGet, "hash", "H", "", "Get sample by sha256 hash")
+	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
+
+	sampleCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
 }
 
 
