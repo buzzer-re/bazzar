@@ -43,7 +43,7 @@ func GetSampleByTag(tag string) Response {
 	return response
 }
 
-func QuerySampleInfo(sampleHash string) SampleQuery {
+func QuerySampleInfo(sampleHash string) (string, SampleQuery) {
 	getSampleInfoForm.Set("hash", sampleHash)
 	resp, err := http.PostForm(MALWARE_BAZZAR_API_URL, getSampleInfoForm)
 	utils.PanicIfError(err)
@@ -56,7 +56,7 @@ func QuerySampleInfo(sampleHash string) SampleQuery {
 	utils.PanicIfError(err)
 
 	
-	return sampleQuery
+	return string(body), sampleQuery
 }
 
 func GetSample(sampleHash string) ([]byte, error) {

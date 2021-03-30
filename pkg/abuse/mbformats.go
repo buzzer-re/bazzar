@@ -41,7 +41,7 @@ type Data struct {
 	Tlsh          string      `json:"tlsh"`
 	Ssdeep        string      `json:"ssdeep"`
 	Tags          []string    `json:"tags"`
-	CodeSign      interface{} `json:"code_sign"`
+	CodeSign      string `json:"code_sign"`
 	Intelligence  struct {
 		Clamav    []string `json:"clamav"`
 		Downloads string   `json:"downloads"`
@@ -73,7 +73,7 @@ type SampleInfo struct {
 	Ssdeep         string      `json:"ssdeep"`
 	Comment        string      `json:"comment"`
 	Tags           []string    `json:"tags"`
-	CodeSign       interface{} `json:"code_sign"`
+	CodeSign       string `json:"code_sign"`
 	DeliveryMethod string      `json:"delivery_method"`
 	Intelligence   struct {
 		Clamav    []string    `json:"clamav"`
@@ -85,8 +85,19 @@ type SampleInfo struct {
 		Context string `json:"context"`
 		Value   string `json:"value"`
 	} `json:"file_information"`
-	OleInformation interface{} `json:"ole_information"`
-	YaraRules      interface{} `json:"yara_rules"`
+	// OleInformation struct{ THIS FIELD GIVE US TOO MUCH NOISE AND CHANGE OVER SAMPLE
+	// 	Olevba []struct {
+	// 		Type string `json:"type"`
+	// 		Keyword string `json:"Keyword"`
+	// 		Description string `json:"description"`
+	// 	}
+	// } `json:"ole_information,omitempty"`
+	YaraRules      []struct{
+		RuleName	string `json:"rule_name"`
+		Author		string `json:"author"`
+		Description	string `json:"description"`
+		Reference	string `json:"reference"`
+	} `json:"yara_rules"`
 	VendorIntel    struct {
 		CERTPLMWDB struct {
 			Detection string `json:"detection"`
@@ -139,7 +150,7 @@ type SampleInfo struct {
 			Sha256Hash string        `json:"sha256_hash"`
 			Md5Hash    string        `json:"md5_hash"`
 			Sha1Hash   string        `json:"sha1_hash"`
-			Detections []interface{} `json:"detections"`
+			Detections []string `json:"detections"`
 			Link       string        `json:"link"`
 		} `json:"UnpacMe"`
 	} `json:"vendor_intel"`

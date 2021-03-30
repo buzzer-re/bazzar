@@ -20,4 +20,8 @@ func SaveFile(fileData []byte, fileName string) {
 }
 
 
+func Unzip(fileData []byte, password string) {
+	
+}
+
 // Generic SampleInfo struct dump using reflection
