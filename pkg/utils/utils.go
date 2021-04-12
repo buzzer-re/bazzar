@@ -1,12 +1,18 @@
 package utils
 
 import (
-	"os"
 	"bytes"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"regexp"
 
 	"github.com/alexmullins/zip"
+)
+
+const (
+	HOST_RUlE     = `(([a-zA-Z]){0,5}:\/\/).+(\.[a-zA-Z]+){1,}(\/|)$`
+	URL_PATH_RULE = `(([a-zA-Z]){0,5}:\/\/).+(\.[a-zA-Z]+){1,}(\/[a-zA-Z0-9_@./#&+-]+)+\/?$`
 )
 
 func PanicIfError(err error) {
@@ -14,7 +20,6 @@ func PanicIfError(err error) {
 		panic(err)
 	}
 }
-
 
 func SaveFile(fileData []byte, fileName string) {
 	file, err := os.Create(fileName)
@@ -25,7 +30,7 @@ func SaveFile(fileData []byte, fileName string) {
 
 func ExitIfError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr,"Error: %s", err)
+		fmt.Fprintf(os.Stderr, "Error: %s", err)
 		os.Exit(1)
 	}
 }
@@ -33,12 +38,12 @@ func ExitIfError(err error) {
 func Unzip(fileData []byte, password string) ([]byte, string) {
 	zipReader, err := zip.NewReader(bytes.NewReader(fileData), int64(len(fileData)))
 	ExitIfError(err)
-	
-    for _, zipFile := range zipReader.File {
+
+	for _, zipFile := range zipReader.File {
 		if zipFile.IsEncrypted() {
 			zipFile.SetPassword(password)
 		}
-		
+
 		f, err := zipFile.Open()
 		ExitIfError(err)
 		defer f.Close()
@@ -46,10 +51,18 @@ func Unzip(fileData []byte, password string) ([]byte, string) {
 		unzippedFileBytes, err := ioutil.ReadAll(f)
 		ExitIfError(err)
 
-       return unzippedFileBytes, zipFile.Name // this is unzipped file bytes
+		return unzippedFileBytes, zipFile.Name // this is unzipped file bytes
 	}
 
 	return nil, ""
 }
 
-// Generic SampleInfo struct dump using reflection
+func IsHost(url string) bool {
+	match, _ := regexp.MatchString(HOST_RUlE, url)
+	return match
+}
+
+func IsFullUrl(url string) bool {
+	match, _ := regexp.MatchString(URL_PATH_RULE, url)
+	return match
+}
