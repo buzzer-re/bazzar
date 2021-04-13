@@ -13,8 +13,8 @@ const (
 var (
 	getSampleInfoForm     url.Values = url.Values{"query": {"get_info"}, "hash": {}}
 	sampleByTag           url.Values = url.Values{"query": {"get_taginfo"}, "tag": {}, "limit": {"1000"}}
-	getSample			  url.Values = url.Values{"query": {"get_file"}, "sha256_hash": {}}
-	latestSamplesFormData url.Values = url.Values{"query": {"get_recent"}, "selector": {"time"}}
+	getSample             url.Values = url.Values{"query": {"get_file"}, "sha256_hash": {}}
+	latestSamplesFormData url.Values = url.Values{"query": {"get_recent"}, "selector": {}}
 	querySampleSignature  url.Values = url.Values{"query": {"get_siginfo"}, "signature": {}, "limit": {}}
 	// queryClamavSignature  url.Values = url.Values{"query": {"get_clamavinfo"}, "clamav": {}, "limit": {}}
 )
@@ -85,9 +85,20 @@ type SampleInfo struct {
 		Context string `json:"context"`
 		Value   string `json:"value"`
 	} `json:"file_information"`
-	OleInformation interface{} `json:"ole_information"`
-	YaraRules      interface{} `json:"yara_rules"`
-	VendorIntel    struct {
+	// OleInformation struct{ THIS FIELD GIVE US TOO MUCH NOISE AND CHANGE OVER SAMPLE
+	// 	Olevba []struct {
+	// 		Type string `json:"type"`
+	// 		Keyword string `json:"Keyword"`
+	// 		Description string `json:"description"`
+	// 	}
+	// } `json:"ole_information,omitempty"`
+	YaraRules []struct {
+		RuleName    string `json:"rule_name"`
+		Author      string `json:"author"`
+		Description string `json:"description"`
+		Reference   string `json:"reference"`
+	} `json:"yara_rules"`
+	VendorIntel struct {
 		CERTPLMWDB struct {
 			Detection string `json:"detection"`
 			Link      string `json:"link"`
@@ -136,11 +147,11 @@ type SampleInfo struct {
 			Link      string `json:"link"`
 		} `json:"Spamhaus_HBL"`
 		UnpacMe []struct {
-			Sha256Hash string        `json:"sha256_hash"`
-			Md5Hash    string        `json:"md5_hash"`
-			Sha1Hash   string        `json:"sha1_hash"`
-			Detections []interface{} `json:"detections"`
-			Link       string        `json:"link"`
+			Sha256Hash string   `json:"sha256_hash"`
+			Md5Hash    string   `json:"md5_hash"`
+			Sha1Hash   string   `json:"sha1_hash"`
+			Detections []string `json:"detections"`
+			Link       string   `json:"link"`
 		} `json:"UnpacMe"`
 	} `json:"vendor_intel"`
 }

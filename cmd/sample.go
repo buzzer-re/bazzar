@@ -1,91 +1,112 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 
 	"github.com/spf13/cobra"
-	// "github.com/fatih/color"
 
 	"github.com/aandersonl/bazzar/pkg/abuse"
 	"github.com/aandersonl/bazzar/pkg/utils"
-
 )
 
 const ZIP_PASSWORD = "infected"
 
 type SampleArgs struct {
-	listLast bool
-	hashGet string
+	listLast   bool
+	hashGet    string
 	sampleInfo bool
+	outputFile string
+	numList    int
+	toJson     bool
 }
 
 var sampleArgs SampleArgs = SampleArgs{}
 
+var regex, _ = regexp.Compile("\n")
+
 var sampleCmd = &cobra.Command{
-	Use: "sample",
+	Use:   "sample [flags] sha256",
 	Short: "Interact with samples in Malware Bazzar",
-	Run: func (cmd *cobra.Command, args []string) {
+	Args: func(cmd *cobra.Command, args []string) error {
+		if sampleArgs.listLast {
+			return nil
+		}
 
-		cmd.Help()
-	},	
-}
+		if len(args) != 0 {
+			sampleArgs.hashGet = args[0]
+			return nil
+		}
 
-var getCmd = &cobra.Command{
-	Use: "get",
-	Short: "Download Malware Bazzar samples using your criteria",
-	Run: func (cmd *cobra.Command, args []string) {
+		return errors.New("You need to pass at least the sample hash, but you can normally list")
+	},
+	Run: func(cmd *cobra.Command, args []string) {
 		if sampleArgs.hashGet != "" {
 			if sampleArgs.sampleInfo {
-				sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
+				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
 				if len(sampleQuery.Data) > 0 {
-					fmt.Printf("%s:\n", sampleArgs.hashGet)
-					dumpSample(&sampleQuery.Data[0])
+					if !sampleArgs.toJson {
+						dumpSample(&sampleQuery.Data[0])
+						return
+					}
+					fmt.Println(rawJson)
 				}
 
 			} else {
-				fmt.Printf("Downloading %s\n", sampleArgs.hashGet)
+				fmt.Printf("Downloading %s...\n", sampleArgs.hashGet)
 				sampleData, err := abuse.GetSample(sampleArgs.hashGet)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error on get sample: %v\n", err)
 					return
 				}
-				//TODO unpack the zip
-				utils.SaveFile(sampleData, sampleArgs.hashGet)
+				unpacked, fileName := utils.Unzip(sampleData, ZIP_PASSWORD)
+
+				var outputFile string
+
+				if sampleArgs.outputFile != "" {
+					outputFile = sampleArgs.outputFile
+				} else {
+					outputFile = fileName
+				}
+
+				utils.SaveFile(unpacked, outputFile)
 			}
 
+			return
+		}
+
+		if sampleArgs.listLast {
+			bluePrint("Loading last %d entries...\n", sampleArgs.numList)
+			latestSamples := abuse.GetLatestSamples(sampleArgs.numList)
+			bluePrint("Last %d entries:\n", len(latestSamples.Data))
+			for _, sampleInfo := range latestSamples.Data {
+				redPrint("%s - %s\n", sampleInfo.Sha256Hash, sampleInfo.FileName)
+			}
 
 			return
 		}
 
 		cmd.Help()
-	},	
+	},
 }
 
 func init() {
-	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last entries in Malware Bazzar")
-	sampleCmd.AddCommand(getCmd)
+	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last 100 entries in Malware Bazzar")
 
-	getCmd.Flags().StringVarP(&sampleArgs.hashGet, "hash", "H", "", "Get sample by sha256 hash")
-	getCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
+	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
+
+	sampleCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
+
+	sampleArgs.numList = 100
 }
 
 func dumpSample(sample *abuse.SampleInfo) {
 	structFields := reflect.TypeOf(*sample)
 	structValues := reflect.ValueOf(*sample)
-
-	num := structFields.NumField()
-
-	for i := 0; i < num ; i++ {
-		field := structFields.Field(i)
-		value := structValues.Field(i)
-
-		switch value.Kind() {
-		case reflect.String:
-			//v := value.String()
-			fmt.Printf("\t%s: %s\n", field.Name, value)
-		}
-	}
-
+	bluePrint("%s:\n", sample.Sha256Hash)
+	dumpReflectedStruct(structFields, structValues, 1)
 }
