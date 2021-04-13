@@ -83,15 +83,16 @@ You need to pass a url or host, but you can normally list
 
 # Installing
 
-## Using go (best way):
-
-> go get github.com/aandersonl/bazzar
+## Using go (best way):tm
+<pre>
+$ go get github.com/aandersonl/bazzar
+</pre>
 
 This will download and compile everything in your GOPATH, make sure to have ***$GOPATH/bin*** in your path in order to work.
 
 ## Releases:
 
-You can also go to [releases]() and grab the latest version avaiable.
+You can also go to [releases](https://github.com/AandersonL/bazzar/releases) and grab the latest version avaiable.
 
 
 ## Roadmap
