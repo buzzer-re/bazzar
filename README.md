@@ -1,5 +1,5 @@
 [![bazzar-CI](https://github.com/AandersonL/bazzar/actions/workflows/ci.yml/badge.svg)](https://github.com/AandersonL/bazzar/actions/workflows/ci.yml)
-
+[![bazzar-CD](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml/badge.svg)](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml)
 # Bazzar
 
 A tiny and comfy CLI written in Go to interact with [Malware Bazzar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database.
@@ -85,7 +85,7 @@ You need to pass a url or host, but you can normally list
 
 # Installing
 
-## Using go (best way):tm
+## Using go (best way):
 <pre>
 $ go get github.com/aandersonl/bazzar
 </pre>
