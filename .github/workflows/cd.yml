@@ -1,0 +1,53 @@
+name: gofast-CD
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+jobs:
+  build:
+    env:
+      TAR_NAME: bazzar-x86_64-linux.tar.gz
+      BIN_NAME: bazzar  
+      
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run: go build
+    
+    - name: Prepare package
+      run: tar -cf ${{env.TAR_NAME}} ${{env.BIN_NAME}}
+      
+    - name: Hashing 
+      run: sha256sum ${{env.BIN_NAME}} > ${{env.BIN_NAME}}.sha256 && sha256sum ${{env.TAR_NAME}} > ${{env.TAR_NAME}}.sha256
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+    - name: Upload Release 
+      id: upload-release-asset-linux
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} 
+        asset_path: ./${{env.TAR_NAME}}
+        asset_name: ${{env.TAR_NAME}}
+        asset_content_type: application/x-tar
+          
