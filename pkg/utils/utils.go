@@ -6,13 +6,14 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/alexmullins/zip"
 )
 
 const (
-	HOST_RUlE     = `(([a-zA-Z]){0,5}:\/\/).+(\.[a-zA-Z]+){1,}(\/|)$`
-	URL_PATH_RULE = `(([a-zA-Z]){0,5}:\/\/).+(\.[a-zA-Z]+){1,}(\/[a-zA-Z0-9_@./#&+-]+)+\/?$`
+	HOST_RUlE     = `(([a-zA-Z]){0,5}:\/\/)?.+(\.[a-zA-Z0-9_@./#&+-].+?).+?(\/|)`
+	URL_PATH_RULE = `(([a-zA-Z]){0,5}:\/\/)?.+(\.[a-zA-Z0-9_@./#&+-]+){1,}(\/[a-zA-Z0-9_@./#&+-]+)+\/?$`
 )
 
 func PanicIfError(err error) {
@@ -65,4 +66,13 @@ func IsHost(url string) bool {
 func IsFullUrl(url string) bool {
 	match, _ := regexp.MatchString(URL_PATH_RULE, url)
 	return match
+}
+
+func CleanHost(hostname string) string {
+	hostname = strings.ReplaceAll(hostname, "http://", "")
+	hostname = strings.ReplaceAll(hostname, "https://", "")
+	hostname = strings.ReplaceAll(hostname, "ftp://", "")
+	hostname = strings.ReplaceAll(hostname, "/", "")
+
+	return hostname
 }

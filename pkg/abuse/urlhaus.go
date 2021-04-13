@@ -9,6 +9,23 @@ import (
 	"github.com/aandersonl/bazzar/pkg/utils"
 )
 
+func QueryLast(limit int) (string, LastUrls) {
+	recentUrl := URLHAUS_API_URL + "s/recent/limit/" + fmt.Sprint((limit)) + "/"
+
+	resp, err := http.Get(recentUrl)
+	utils.ExitIfError(err)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	utils.ExitIfError(err)
+
+	last := LastUrls{}
+
+	err = json.Unmarshal(body, &last)
+	utils.ExitIfError(err)
+
+	return string(body), last
+}
+
 func QueryUrl(url string) (string, URLResponse) {
 	query_url_post.Set("url", url)
 
@@ -38,8 +55,6 @@ func QueryHost(host string) (string, HostResponse) {
 	hostResponse := HostResponse{}
 	err = json.Unmarshal(body, &hostResponse)
 	utils.ExitIfError(err)
-
-	fmt.Println(hostResponse)
 
 	return string(body), hostResponse
 

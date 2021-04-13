@@ -74,3 +74,23 @@ type HostResponse struct {
 		Tags                []string    `json:"tags"`
 	} `json:"urls"`
 }
+
+type LastUrls struct {
+	QueryStatus string `json:"query_status"`
+	Urls        []struct {
+		ID               string `json:"id"`
+		UrlhausReference string `json:"urlhaus_reference"`
+		URL              string `json:"url"`
+		URLStatus        string `json:"url_status"`
+		Host             string `json:"host"`
+		DateAdded        string `json:"date_added"`
+		Threat           string `json:"threat"`
+		Blacklists       struct {
+			SpamhausDbl string `json:"spamhaus_dbl"`
+			Surbl       string `json:"surbl"`
+		} `json:"blacklists"`
+		Reporter string   `json:"reporter"`
+		Larted   string   `json:"larted"`
+		Tags     []string `json:"tags"`
+	} `json:"urls"`
+}
