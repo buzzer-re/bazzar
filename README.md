@@ -1,6 +1,6 @@
 # Bazzar
 
-A tiny and comfy CLI for interact with [Malware Bazzar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database written in Go.
+A tiny and comfy CLI written in Go to interact with [Malware Bazzar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database.
 
 
 ## Why
@@ -20,7 +20,7 @@ As this is not a finish tool, I will soon add other features like:
 
 * Query samples by tag
 * Query by imphash,tlsh,ssdeep (This queries don't work in the current api spec)
-* Download daily generate samples batch
+* Download daily generated samples batch
 * Correlate samples with urlhaus
 * Generate MISP events
 
@@ -80,7 +80,7 @@ You need to pass a url or host, but you can normally list
 
 ### Sample interaction
 
-![](assets/samples.gif)
+<img src="assets/samples.gif" width="10000px" height="200%"/>
 
 ### URL interaction
 
@@ -90,13 +90,13 @@ You need to pass a url or host, but you can normally list
 
 # Installing
 
-using go:
+## Using go (best way):
 
 > go get github.com/aandersonl/bazzar
 
 This will download and compile everything in your GOPATH, make sure to have ***$GOPATH/bin*** in your path in order to work.
 
-Releases:
+## Releases:
 
 You can also go to [releases]() and grab the latest version avaiable.
 
