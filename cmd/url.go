@@ -75,10 +75,10 @@ var urlCmd = &cobra.Command{
 				return
 			}
 
-			hostExists := hostResponse.QueryStaus == "ok"
+			hostExists := hostResponse.QueryStatus == "ok"
 			urlExists := urlResponse.QueryStatus == "ok"
 
-			if hostExists && urlExists {
+			if !hostExists && !urlExists {
 				bluePrint("%s is  not listed in urlhaus database\n", urlArgs.Url)
 			} else {
 				if hostExists {

@@ -52,7 +52,7 @@ type URLResponse struct {
 }
 
 type HostResponse struct {
-	QueryStaus       string `json:"query_staus"`
+	QueryStatus      string `json:"query_status"`
 	UrlhausReference string `json:"urlhaus_reference"`
 	Host             string `json:"host"`
 	Firstseen        string `json:"firstseen"`
