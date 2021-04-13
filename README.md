@@ -1,5 +1,5 @@
 [![bazzar-CI](https://github.com/AandersonL/bazzar/actions/workflows/ci.yml/badge.svg)](https://github.com/AandersonL/bazzar/actions/workflows/ci.yml)
-
+[![bazzar-CD](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml/badge.svg)](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml)
 # Bazzar
 
 A tiny and comfy CLI written in Go to interact with [Malware Bazzar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database.
