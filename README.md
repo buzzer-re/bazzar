@@ -16,13 +16,6 @@ With bazzar you can:
 * Query url info in raw text and json format
 * Download any malware sample available in Malware Bazzar
 
-As this is not a finish tool, I will soon add other features like:
-
-* Query samples by tag
-* Query by imphash,tlsh,ssdeep (This queries don't work in the current api spec)
-* Download daily generated samples batch
-* Correlate samples with urlhaus
-* Generate MISP events
 
 
 ## Usage:
@@ -80,7 +73,7 @@ You need to pass a url or host, but you can normally list
 
 ### Sample interaction
 
-<img src="assets/samples.gif" width="10000px" height="200%"/>
+![](assets/samples.gif)
 
 ### URL interaction
 
@@ -100,6 +93,16 @@ This will download and compile everything in your GOPATH, make sure to have ***$
 
 You can also go to [releases]() and grab the latest version avaiable.
 
+
+## Roadmap
+
+As this is not a finish tool, I will soon add other features like:
+
+* Query samples by tag
+* Query by imphash,tlsh,ssdeep (This queries don't work in the current api spec)
+* Download daily generated samples batch
+* Correlate samples with urlhaus
+* Generate MISP events
 
 
 Thanks.
