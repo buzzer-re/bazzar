@@ -16,12 +16,13 @@ import (
 const ZIP_PASSWORD = "infected"
 
 type SampleArgs struct {
-	listLast   bool
-	hashGet    string
-	sampleInfo bool
-	outputFile string
-	numList    int
-	toJson     bool
+	listLast       bool
+	hashGet        string
+	outputFile     string
+	numList        int
+	toJson         bool
+	rawPrint       bool
+	downloadSample bool
 }
 
 var sampleArgs SampleArgs = SampleArgs{}
@@ -45,17 +46,7 @@ var sampleCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if sampleArgs.hashGet != "" {
-			if sampleArgs.sampleInfo {
-				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
-				if len(sampleQuery.Data) > 0 {
-					if !sampleArgs.toJson {
-						dumpSample(&sampleQuery.Data[0])
-						return
-					}
-					fmt.Println(rawJson)
-				}
-
-			} else {
+			if sampleArgs.downloadSample {
 				fmt.Printf("Downloading %s...\n", sampleArgs.hashGet)
 				sampleData, err := abuse.GetSample(sampleArgs.hashGet)
 				if err != nil {
@@ -73,6 +64,17 @@ var sampleCmd = &cobra.Command{
 				}
 
 				utils.SaveFile(unpacked, outputFile)
+
+			} else {
+				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
+				if len(sampleQuery.Data) > 0 {
+					if !sampleArgs.toJson {
+						dumpSample(&sampleQuery.Data[0])
+						return
+					}
+					fmt.Println(rawJson)
+				}
+
 			}
 
 			return
@@ -98,8 +100,9 @@ func init() {
 
 	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
 
-	sampleCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
 	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.rawPrint, "raw", "r", false, "Output without colors")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.downloadSample, "get", "g", false, "Download sample")
 
 	sampleArgs.numList = 100
 }
