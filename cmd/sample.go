@@ -105,7 +105,7 @@ var sampleCmd = &cobra.Command{
 
 				fmt.Fprintf(w, "\n %s\t%s\t%d Kb\t", sampleInfo.Sha256Hash, sampleInfo.FileName, sampleInfo.FileSize)
 			}
-
+			fmt.Println()
 			return
 		}
 
@@ -115,7 +115,6 @@ var sampleCmd = &cobra.Command{
 
 func init() {
 	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last 100 entries in Malware Bazzar")
-
 	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
 
 	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
