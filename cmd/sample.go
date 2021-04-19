@@ -6,7 +6,9 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"text/tabwriter"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/aandersonl/bazzar/pkg/abuse"
@@ -16,12 +18,13 @@ import (
 const ZIP_PASSWORD = "infected"
 
 type SampleArgs struct {
-	listLast   bool
-	hashGet    string
-	sampleInfo bool
-	outputFile string
-	numList    int
-	toJson     bool
+	listLast       bool
+	hashGet        string
+	outputFile     string
+	numList        int
+	toJson         bool
+	rawPrint       bool
+	downloadSample bool
 }
 
 var sampleArgs SampleArgs = SampleArgs{}
@@ -44,18 +47,13 @@ var sampleCmd = &cobra.Command{
 		return errors.New("You need to pass at least the sample hash, but you can normally list")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if sampleArgs.hashGet != "" {
-			if sampleArgs.sampleInfo {
-				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
-				if len(sampleQuery.Data) > 0 {
-					if !sampleArgs.toJson {
-						dumpSample(&sampleQuery.Data[0])
-						return
-					}
-					fmt.Println(rawJson)
-				}
+		if sampleArgs.rawPrint {
+			bluePrint = color.New(color.FgWhite).PrintfFunc()
+			redPrint = color.New(color.FgWhite).PrintfFunc()
+		}
 
-			} else {
+		if sampleArgs.hashGet != "" {
+			if sampleArgs.downloadSample {
 				fmt.Printf("Downloading %s...\n", sampleArgs.hashGet)
 				sampleData, err := abuse.GetSample(sampleArgs.hashGet)
 				if err != nil {
@@ -73,19 +71,41 @@ var sampleCmd = &cobra.Command{
 				}
 
 				utils.SaveFile(unpacked, outputFile)
+
+			} else {
+				rawJson, sampleQuery := abuse.QuerySampleInfo(sampleArgs.hashGet)
+				if len(sampleQuery.Data) > 0 {
+					if !sampleArgs.toJson {
+						dumpSample(&sampleQuery.Data[0])
+						return
+					}
+					fmt.Println(rawJson)
+				}
+
 			}
 
 			return
 		}
 
 		if sampleArgs.listLast {
+			filenameSize := 16
 			bluePrint("Loading last %d entries...\n", sampleArgs.numList)
 			latestSamples := abuse.GetLatestSamples(sampleArgs.numList)
 			bluePrint("Last %d entries:\n", len(latestSamples.Data))
-			for _, sampleInfo := range latestSamples.Data {
-				redPrint("%s - %s\n", sampleInfo.Sha256Hash, sampleInfo.FileName)
-			}
+			w := new(tabwriter.Writer)
+			w.Init(os.Stdout, 8, 8, 0, '\t', 0)
+			defer w.Flush()
 
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "Sha256", "Filename", "Filesize")
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "--------", "--------", "--------")
+			for _, sampleInfo := range latestSamples.Data {
+				if len(sampleInfo.FileName) > filenameSize {
+					sampleInfo.FileName = sampleInfo.FileName[:filenameSize] + "..."
+				}
+
+				fmt.Fprintf(w, "\n %s\t%s\t%d Kb\t", sampleInfo.Sha256Hash, sampleInfo.FileName, sampleInfo.FileSize)
+			}
+			fmt.Println()
 			return
 		}
 
@@ -95,11 +115,11 @@ var sampleCmd = &cobra.Command{
 
 func init() {
 	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last 100 entries in Malware Bazzar")
-
 	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
 
-	sampleCmd.Flags().BoolVarP(&sampleArgs.sampleInfo, "info", "i", false, "Get sample info")
 	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.rawPrint, "raw", "r", false, "Output without colors")
+	sampleCmd.Flags().BoolVarP(&sampleArgs.downloadSample, "get", "g", false, "Download sample")
 
 	sampleArgs.numList = 100
 }
