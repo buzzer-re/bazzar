@@ -6,6 +6,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"text/tabwriter"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -48,7 +49,7 @@ var sampleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if sampleArgs.rawPrint {
 			bluePrint = color.New(color.FgWhite).PrintfFunc()
-			redPrint = color.New(color.FgHiWhite).PrintfFunc()
+			redPrint = color.New(color.FgWhite).PrintfFunc()
 		}
 
 		if sampleArgs.hashGet != "" {
@@ -87,11 +88,22 @@ var sampleCmd = &cobra.Command{
 		}
 
 		if sampleArgs.listLast {
+			filenameSize := 16
 			bluePrint("Loading last %d entries...\n", sampleArgs.numList)
 			latestSamples := abuse.GetLatestSamples(sampleArgs.numList)
 			bluePrint("Last %d entries:\n", len(latestSamples.Data))
+			w := new(tabwriter.Writer)
+			w.Init(os.Stdout, 8, 8, 0, '\t', 0)
+			defer w.Flush()
+
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "Sha256", "Filename", "Filesize")
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "--------", "--------", "--------")
 			for _, sampleInfo := range latestSamples.Data {
-				redPrint("%s - %s\n", sampleInfo.Sha256Hash, sampleInfo.FileName)
+				if len(sampleInfo.FileName) > filenameSize {
+					sampleInfo.FileName = sampleInfo.FileName[:filenameSize] + "..."
+				}
+
+				fmt.Fprintf(w, "\n %s\t%s\t%d Kb\t", sampleInfo.Sha256Hash, sampleInfo.FileName, sampleInfo.FileSize)
 			}
 
 			return
