@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/aandersonl/bazzar/pkg/abuse"
@@ -45,6 +46,11 @@ var sampleCmd = &cobra.Command{
 		return errors.New("You need to pass at least the sample hash, but you can normally list")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		if sampleArgs.rawPrint {
+			bluePrint = color.New(color.FgWhite).PrintfFunc()
+			redPrint = color.New(color.FgHiWhite).PrintfFunc()
+		}
+
 		if sampleArgs.hashGet != "" {
 			if sampleArgs.downloadSample {
 				fmt.Printf("Downloading %s...\n", sampleArgs.hashGet)
