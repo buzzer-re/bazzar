@@ -25,6 +25,7 @@ type SampleArgs struct {
 	toJson         bool
 	rawPrint       bool
 	downloadSample bool
+	queryTag       string
 }
 
 var sampleArgs SampleArgs = SampleArgs{}
@@ -35,7 +36,7 @@ var sampleCmd = &cobra.Command{
 	Use:   "sample [flags] sha256",
 	Short: "Interact with samples in Malware Bazzar",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if sampleArgs.listLast {
+		if sampleArgs.listLast || sampleArgs.queryTag != "" {
 			return nil
 		}
 
@@ -87,23 +88,36 @@ var sampleCmd = &cobra.Command{
 			return
 		}
 
-		if sampleArgs.listLast {
+		if sampleArgs.listLast || sampleArgs.queryTag != "" {
 			filenameSize := 16
-			bluePrint("Loading last %d entries...\n", sampleArgs.numList)
-			latestSamples := abuse.GetLatestSamples(sampleArgs.numList)
-			bluePrint("Last %d entries:\n", len(latestSamples.Data))
+			var latestSamples abuse.Response
+
+			if sampleArgs.listLast {
+				bluePrint("Loading last %d entries...\n", sampleArgs.numList)
+				latestSamples = abuse.GetLatestSamples(sampleArgs.numList)
+				bluePrint("Last %d entries:\n", len(latestSamples.Data))
+			} else {
+				bluePrint("Querying last entries of tag:%s\n", sampleArgs.queryTag)
+				latestSamples = abuse.GetSampleByTag(sampleArgs.queryTag)
+			}
+
+			if len(latestSamples.Data) == 0 {
+				redPrint("No samples found!\n")
+				return
+			}
+
 			w := new(tabwriter.Writer)
 			w.Init(os.Stdout, 8, 8, 0, '\t', 0)
 			defer w.Flush()
 
-			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "Sha256", "Filename", "Filesize")
-			fmt.Fprintf(w, "\n %s\t%s\t%s\t", "--------", "--------", "--------")
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t%s", "Sha256", "Filename", "Filesize", "Filetype")
+			fmt.Fprintf(w, "\n %s\t%s\t%s\t%s", "--------", "--------", "--------", "--------")
 			for _, sampleInfo := range latestSamples.Data {
 				if len(sampleInfo.FileName) > filenameSize {
 					sampleInfo.FileName = sampleInfo.FileName[:filenameSize] + "..."
 				}
 
-				fmt.Fprintf(w, "\n %s\t%s\t%d Kb\t", sampleInfo.Sha256Hash, sampleInfo.FileName, sampleInfo.FileSize)
+				fmt.Fprintf(w, "\n %s\t%s\t%d Kb\t%s", sampleInfo.Sha256Hash, sampleInfo.FileName, sampleInfo.FileSize, sampleInfo.FileType)
 			}
 			fmt.Println()
 			return
@@ -116,7 +130,7 @@ var sampleCmd = &cobra.Command{
 func init() {
 	sampleCmd.Flags().BoolVarP(&sampleArgs.listLast, "list-last", "l", false, "List last 100 entries in Malware Bazzar")
 	sampleCmd.Flags().StringVarP(&sampleArgs.outputFile, "output", "o", "", "Output sample path")
-
+	sampleCmd.Flags().StringVarP(&sampleArgs.queryTag, "tag", "t", "", "Query a sample list by tag, eg: revil")
 	sampleCmd.Flags().BoolVarP(&sampleArgs.toJson, "json", "j", false, "Output info in json format")
 	sampleCmd.Flags().BoolVarP(&sampleArgs.rawPrint, "raw", "r", false, "Output without colors")
 	sampleCmd.Flags().BoolVarP(&sampleArgs.downloadSample, "get", "g", false, "Download sample")
