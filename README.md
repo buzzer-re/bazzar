@@ -101,7 +101,6 @@ You can also go to [releases](https://github.com/AandersonL/bazzar/releases) and
 
 As this is not a finish tool, I will soon add other features like:
 
-* Query samples by tag
 * Query by imphash,tlsh,ssdeep (This queries don't work in the current api spec)
 * Download daily generated samples batch
 * Correlate samples with urlhaus
