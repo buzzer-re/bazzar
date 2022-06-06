@@ -87,7 +87,7 @@ You need to pass a url or host, but you can normally list
 
 ## Using go (best way):
 <pre>
-$ go get github.com/aandersonl/bazzar
+$ go install github.com/aandersonl/bazzar@latest
 </pre>
 
 This will download and compile everything in your GOPATH, make sure to have ***$GOPATH/bin*** in your path in order to work.
