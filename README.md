@@ -2,7 +2,7 @@
 [![bazzar-CD](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml/badge.svg)](https://github.com/AandersonL/bazzar/actions/workflows/cd.yml)
 # Bazzar
 
-A tiny and comfy CLI written in Go to interact with [Malware Bazzar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database.
+A tiny and comfy CLI written in Go to interact with [Malware Bazaar](https://bazaar.abuse.ch/) samples and [Urlhaus](https://urlhaus.abuse.ch/) database.
 
 
 ## Why
